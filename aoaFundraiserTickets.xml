@@ -1,0 +1,365 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs
+  title="Academy of Alameda PTA Fall Fundraiser Tickets"
+  height="600"
+  width="700"
+  author="Andy Currid" 
+  author_email="andycurrid@gmail.com"
+  />
+  <Content type="html">
+
+<![CDATA[ 
+
+<html>
+<head>
+
+<script type="text/javascript">
+
+var ticket1Cost = "30.00";
+var donationCost = "1";
+var ptaName = "Academy of Alameda PTA";
+
+var ticket1 = 0.00;
+var teacherTicket = 0.00;
+var donation = 0.00;
+var grandTotal = 0.00;
+var itemIndex = 0;
+
+function isEmpty(value) {
+    if (value == null || value == "") {
+	return true;
+    }
+
+    return false;
+}
+
+function updateTotal()
+{
+    grandTotal = (ticket1 * ticket1Cost) + (teacherTicket * ticket1Cost) + donation;
+
+    document.getElementById("grandTotal").innerHTML= '$' + grandTotal.toFixed(2);
+}
+
+
+function updateTickets()
+{
+    var displayValue;
+
+    if ((numTickets = document.ticketForm.ticket1.value) != "") {
+        ticket1 = numTickets;
+        ticketCost = ticket1 * ticket1Cost;
+        displayValue = '$' + ticketCost.toFixed(2) + "&nbsp";
+    } else {
+        ticket1 = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("ticket1Subtotal").innerHTML = displayValue;
+
+    if ((numTickets = document.ticketForm.teacherTicket.value) != "") {
+        teacherTicket = numTickets;
+        ticketCost = teacherTicket * ticket1Cost;
+        displayValue = '$' + ticketCost.toFixed(2) + "&nbsp";
+    } else {
+        teacherTicket = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("teacherTicketSubtotal").innerHTML = displayValue;
+
+    if ((numTickets = document.ticketForm.donation.value) != "") {
+        donation = numTickets * donationCost;
+        displayValue = '$' + donation.toFixed(2) + "&nbsp";
+    } else {
+        donation = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("donationSubtotal").innerHTML = displayValue;
+
+    if (ticket1 != 0 || teacherTicket != 0 || donation !=0) {
+        document.getElementById("ticketError").innerHTML="&nbsp;";
+    }
+
+    updateTotal();
+}
+
+
+function addItem (name, amount, quantity, on, os)
+{
+    var itemName;
+    var itemAmount;
+    var itemQuantity;
+    var itemOn;
+    var itemOs;
+
+    itemIndex++;
+
+    itemName = document.getElementById("itemName" + itemIndex);
+    itemAmount = document.getElementById("itemAmount" + itemIndex);
+    itemQuantity = document.getElementById("itemQuantity" + itemIndex);
+    itemOn = document.getElementById("on" + itemIndex);
+    itemOs = document.getElementById("os" + itemIndex);
+
+    itemName.value = name;
+    itemAmount.value = amount;
+    itemQuantity.value = quantity;
+    itemOn.value = on;
+    itemOs.value = os;
+}
+
+function validate()
+{
+    var good = true;
+
+    if (ticket1 != 0 || teacherTicket != 0 || donation !=0) {
+        document.getElementById("ticketError").innerHTML="&nbsp;";
+    } else {
+        document.getElementById("ticketError").innerHTML= "&nbsp;&nbsp;&nbsp;Please select number of tickets or make a donation";
+        good = false;
+    }
+
+    if (ticket1 != 00 && isEmpty(document.ticketForm.name.value)) {
+        document.getElementById("nameError").innerHTML= "&nbsp;&nbsp;&nbsp;Please enter a name";
+        good = false;
+    } else {
+        document.getElementById("nameError").innerHTML="&nbsp;";
+    }
+
+    if (good && grandTotal != 0) {
+        // Assemble order and submit to Paypal
+
+        var f = document.getElementById("ticketForm");
+
+        if (ticket1 != 0) {
+            addItem("Fall Fundraiser ticket", ticket1Cost, f.ticket1.value, "Name", f.name.value);
+        }
+
+        if (teacherTicket != 0) {
+            addItem("Fall Fundraiser teacher ticket", ticket1Cost, f.teacherTicket.value, "Name", f.name.value);
+        }
+
+        if (donation != 0) {
+            addItem("Fall Fundraiser donation", f.donation.value, donationCost, "Name", f.name.value);
+        }
+
+        for ( ; itemIndex < 3; ) {
+            addItem("", "", "", "", "");
+        }
+
+        document.ticketForm.submit();
+
+        itemIndex = 0;
+    }
+
+    return good;
+}
+
+
+</script>
+
+
+<form action="https://www.paypal.com/cgi-bin/webscr" id="ticketForm" method="post" name="ticketForm" target="paypal">
+<input name="business" type="hidden" value="KSL3CG6UWS88S">
+
+<input name="cmd" type="hidden" value="_cart">
+<input name="upload" type="hidden" value="1">
+<input id="custom" name="custom" type="hidden" value="Academy of Alameda Fall Fundraiser">
+<!--
+<input id="return" name="return" type="hidden" value="http://aoapta.weebly.com/spaghettidinnercomplete.html">
+-->
+
+<!-- cart items -->
+
+<input id="itemName1" name="item_name_1" type="hidden" value="">
+<input id="itemAmount1" name="amount_1" type="hidden" value="">
+<input id="itemQuantity1" name="quantity_1" type="hidden" value="">
+<input id="on1" name="on0_1" type="hidden" value="">
+<input id="os1" name="os0_1" type="hidden" value="">
+
+<input id="itemName2" name="item_name_2" type="hidden" value="">
+<input id="itemAmount2" name="amount_2" type="hidden" value="">
+<input id="itemQuantity2" name="quantity_2" type="hidden" value="">
+<input id="on2" name="on0_2" type="hidden" value="">
+<input id="os2" name="os0_2" type="hidden" value="">
+
+<input id="itemName3" name="item_name_3" type="hidden" value="">
+<input id="itemAmount3" name="amount_3" type="hidden" value="">
+<input id="itemQuantity3" name="quantity_3" type="hidden" value="">
+<input id="on3" name="on0_3" type="hidden" value="">
+<input id="os3" name="os0_3" type="hidden" value="">
+
+<br>
+
+<!-- frame 
+BF793D new
+C28350 new
+b3d0b2 orig
+
+text
+61793F new
+445ab1 orig
+-->
+
+<table bgcolor="#C28350" border="0" cellpadding="0" cellspacing="0" style="font-size:10pt;font-family:Arial;" width="700">
+<TBODY><tr>
+<td align="center">
+
+<table bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0" style="font-size:10pt;font-family:Arial;" width="680">
+
+<TBODY>
+
+<tr height="30">
+<td align="left" colspan="7" style="font-size:14pt;background:#C28350;" width="680"><b>&nbsp;</b></td>
+</tr>
+
+<tr height="20"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#61793F;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Individual tickets - $30</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Number of tickets:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<select name="ticket1" onchange="updateTickets();">
+<option value=""> </option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+</select>
+</td>
+<td width="100">&nbsp; x $30</td>
+<td width="120">&nbsp;</td>
+<td align="right" id="ticket1Subtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr style="font-size:8pt">
+<td align="right" colspan="2" id="first1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td align="right" colspan="2" id="last1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td width="100">&nbsp;</td>
+<td width="120">&nbsp;</td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr height="20"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#61793F;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Buy tickets for teachers - $30</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Number of tickets:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<select name="teacherTicket" onchange="updateTickets();">
+<option value=""> </option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+</select>
+</td>
+<td width="100">&nbsp; x $30</td>
+<td width="120">&nbsp;</td>
+<td align="right" id="teacherTicketSubtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr style="font-size:8pt">
+<td align="right" colspan="2" id="first1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td align="right" colspan="2" id="last1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td width="100">&nbsp;</td>
+<td width="120">&nbsp;</td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#61793F;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Unable to attend? - please make a donation</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Donation amount:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<input align="right" maxlength="5" size="5" type="text" name="donation" onchange="updateTickets();">
+</td>
+<td width="100">&nbsp;</td>
+<td align="left" width="120">&nbsp;</td>
+<td align="right" id="donationSubtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr height="20">
+<td colspan="2" align="right" width="180">&nbsp;</td>
+<td colspan="4" align="left" width="400" id="ticketError" style="font-size:8pt; font-weight:bold; color:#ff0000;"></td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#61793F;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Name</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+<tr><td align="left" colspan="7" width="680">&nbsp;&nbsp;Your tickets will be available for pickup at the door, under this name</td></tr>
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Name:&nbsp;</b></td>
+<td colspan="3" align="left" width="280">
+&nbsp;&nbsp;
+<input align="right" maxlength="50" name="name" size="30" type="text">
+</td>
+<td align="left" width="120">&nbsp;</td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+<tr height="20">
+<td colspan="2" align="right" width="180">&nbsp;</td>
+<td colspan="4" align="left" width="400" id="nameError" style="font-size:8pt; font-weight:bold; color:#ff0000;"></td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+<tr height="10" style="background:#C28350;"><td colspan="7" width="680"></td></tr>
+
+<tr height="30" style="font-size:14pt;background:#C28350;">
+<td align="left" colspan="4" rowspan="2" width="360">
+<img align="left" alt="Paypal" border="0" src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" valign="center">
+</td>
+<td align="center" colspan="2" width="220"><b>&nbsp;Total</b></td>
+<td align="right" id="grandTotal" style="font-weight:bold;" width="100">$0.00</td>
+</tr>
+
+<tr height="50" style="font-size:11pt;background:#C28350;">
+<td align="right" colspan="3" style="font-size:9pt;font-weight:bold;" width="320">
+<img align="center" alt="PayPal" border="0" onClick="validate();" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif">
+<img alt="" border="0" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1">
+<br>
+<span align="left" style="font-size:7pt">Opens in new window&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+</td>
+</tr>
+
+<tr height="10" style="background:#C28350;"><td colspan="7" width="680"></td></tr>
+
+</TBODY></table>
+
+</td>
+</tr>
+</TBODY></table>
+
+     
+</form>
+</body></html>
+
+     ]]>
+  </Content> 
+</Module>
+

@@ -1,0 +1,426 @@
+<?xml version="1.0" encoding="UTF-8" ?> 
+<Module>
+  <ModulePrefs
+  title="Academy of Alameda PTA Pasta Dinner"
+  height="600"
+  width="700"
+  author="Andy Currid" 
+  author_email="andycurrid@gmail.com"
+  />
+  <Content type="html">
+
+<![CDATA[ 
+
+<script type="text/javascript">
+
+var ticket1Cost = 5.0;
+var ticket6Cost = 20.0;
+var ticketRCost = 3.0;
+var ticketRBundleCost = 10.0;
+var ticketRBundleAmount = 5;
+var ptaName = "Academy of Alameda PTA";
+
+var ticket1 = 0.00;
+var ticket6 = 0.00;
+var ticketRSingle = 0;
+var ticketRBundle = 0;
+var ticketRSubtotal = 0.00;
+var grandTotal = 0.00;
+var itemIndex = 0;
+
+function isEmpty(value) {
+    if (value == null || value == "") {
+	return true;
+    }
+
+    return false;
+}
+
+function updateTotal()
+{
+    grandTotal = (ticket1 * ticket1Cost) + (ticket6 * ticket6Cost) +
+        (ticketRSubtotal * 1);
+    document.getElementById("grandTotal").innerHTML= '$' + grandTotal.toFixed(2);
+}
+
+
+function updateTickets()
+{
+    var displayValue;
+
+    if ((numTickets = document.ticketForm.ticket1.value) != "") {
+        ticket1 = numTickets;
+        ticketCost = ticket1 * ticket1Cost;
+        displayValue = '$' + ticketCost.toFixed(2) + "&nbsp";
+    } else {
+        ticket1 = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("ticket1Subtotal").innerHTML = displayValue;
+
+    if ((numTickets = document.ticketForm.ticket6.value) != "") {
+        ticket6 = numTickets;
+        ticketCost = ticket6 * ticket6Cost;
+        displayValue = '$' + ticketCost.toFixed(2) + "&nbsp";
+    } else {
+        ticket6 = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("ticket6Subtotal").innerHTML = displayValue;
+
+
+    if ((numTickets = document.ticketForm.ticketR.value) != "") {
+        var number = /^(?:[ ]*)[0-9]+(?:[ ]*)$/;
+        var whitespace = /^[ ]*$/;
+        var good = true;
+
+        x = numTickets.match(number);
+
+        if (x != null) {
+            var x = parseInt(x, 10);
+
+            if (isNaN(x) || x < 0) {
+                good = false;
+            } else {
+                var ticketR = x;
+                document.getElementById("ticketRError").innerHTML="&nbsp;";
+
+		ticketRBundle = Math.floor(ticketR / ticketRBundleAmount);
+		ticketRSingle = (ticketR % ticketRBundleAmount);
+
+		if ((ticketRSingle * ticketRCost) > ticketRBundleCost) {
+                    ticketRSingle = 0;
+                    ticketRBundle++;
+                }
+
+		ticketRSubtotal = ((ticketRSingle * ticketRCost) +
+                                   (ticketRBundle * ticketRBundleCost)).toFixed(2);
+
+                displayValue = '$' + ticketRSubtotal + "&nbsp";
+
+                ticketR = (ticketRSingle + ticketRBundle * ticketRBundleAmount).toString();
+		document.ticketForm.ticketR.value = ticketR;
+            }
+        } else if (numTickets.match(whitespace) != null) {
+	    document.ticketForm.ticketR.value = "";
+	    document.getElementById("ticketRError").innerHTML="&nbsp;";
+            ticketR = 0;
+            displayValue = "";
+	} else {
+            good = false;
+        }
+
+        if (good == false) {
+            document.getElementById("ticketRError").innerHTML="&nbsp;&nbsp;&nbsp;Please enter a valid number";
+            displayValue = "";
+            ticketR = 0;
+        }
+    } else {
+	document.getElementById("ticketRError").innerHTML="&nbsp;";
+        ticketR = 0;
+        displayValue = "";
+    }
+
+    document.getElementById("ticketRSubtotal").innerHTML = displayValue;
+
+    if (ticket1 != 0 || ticket6 !=0) {
+        document.getElementById("ticketError").innerHTML="&nbsp;";
+    }
+
+    updateTotal();
+}
+
+
+function addItem (name, amount, quantity, on, os)
+{
+    var itemName;
+    var itemAmount;
+    var itemQuantity;
+    var itemOn;
+    var itemOs;
+
+    itemIndex++;
+
+    itemName = document.getElementById("itemName" + itemIndex);
+    itemAmount = document.getElementById("itemAmount" + itemIndex);
+    itemQuantity = document.getElementById("itemQuantity" + itemIndex);
+    itemOn = document.getElementById("on" + itemIndex);
+    itemOs = document.getElementById("os" + itemIndex);
+
+    itemName.value = name;
+    itemAmount.value = amount;
+    itemQuantity.value = quantity;
+    itemOn.value = on;
+    itemOs.value = os;
+}
+
+function validate()
+{
+    var good = true;
+
+    if (ticket1 != 0 || ticket6 !=0) {
+        document.getElementById("ticketError").innerHTML="&nbsp;";
+    } else {
+        document.getElementById("ticketError").innerHTML= "&nbsp;&nbsp;&nbsp;Please select individual or family tickets";
+        good = false;
+    }
+
+    if (isEmpty(document.ticketForm.name.value)) {
+        document.getElementById("nameError").innerHTML= "&nbsp;&nbsp;&nbsp;Please enter a name";
+        good = false;
+    } else {
+        document.getElementById("nameError").innerHTML="&nbsp;";
+    }
+
+    if (good && grandTotal != 0) {
+        // Assemble order and submit to Paypal
+
+        var f = document.getElementById("ticketForm");
+
+        if (ticket1 != 0) {
+            addItem("Pasta Dinner individual ticket", ticket1Cost, f.ticket1.value,
+                    "Name", f.name.value);
+        }
+
+        if (ticket6 != 0) {
+            addItem("Pasta Dinner family ticket", ticket6Cost, f.ticket6.value,
+                    "Name", f.name.value);
+        }
+
+        if (ticketRSingle != 0) {
+            addItem("Pasta Dinner single raffle ticket", ticketRCost, ticketRSingle,
+                    "Name", f.name.value);
+        }
+
+        if (ticketRBundle != 0) {
+            addItem("Pasta Dinner 5-pack raffle tickets", ticketRBundleCost,
+                    ticketRBundle, "Name", f.name.value);
+        }
+
+        var raffleTickets = ticketRBundle * ticketRBundleAmount + ticketRSingle;
+
+        if (raffleTickets != 0) {
+            addItem("Pasta Dinner total raffle tickets", 0, raffleTickets, "Name",
+                    f.name.value);
+        }
+
+        for ( ; itemIndex < 5; ) {
+            addItem("", "", "", "", "");
+        }
+
+        document.ticketForm.submit();
+
+        itemIndex = 0;
+    }
+
+    return good;
+}
+
+
+</script>
+
+
+<form action="https://www.paypal.com/cgi-bin/webscr" id="ticketForm" method="post" name="ticketForm" target="paypal">
+<input name="business" type="hidden" value="KSL3CG6UWS88S">
+
+<input name="cmd" type="hidden" value="_cart">
+<input name="upload" type="hidden" value="1">
+<input id="custom" name="custom" type="hidden" value="Pasta Dinner">
+<!--
+<input id="return" name="return" type="hidden" value="http://www.aoapta.org/">
+-->
+
+<!-- cart items -->
+
+<input id="itemName1" name="item_name_1" type="hidden" value="">
+<input id="itemAmount1" name="amount_1" type="hidden" value="">
+<input id="itemQuantity1" name="quantity_1" type="hidden" value="">
+<input id="on1" name="on0_1" type="hidden" value="">
+<input id="os1" name="os0_1" type="hidden" value="">
+
+<input id="itemName2" name="item_name_2" type="hidden" value="">
+<input id="itemAmount2" name="amount_2" type="hidden" value="">
+<input id="itemQuantity2" name="quantity_2" type="hidden" value="">
+<input id="on2" name="on0_2" type="hidden" value="">
+<input id="os2" name="os0_2" type="hidden" value="">
+
+<input id="itemName3" name="item_name_3" type="hidden" value="">
+<input id="itemAmount3" name="amount_3" type="hidden" value="">
+<input id="itemQuantity3" name="quantity_3" type="hidden" value="">
+<input id="on3" name="on0_3" type="hidden" value="">
+<input id="os3" name="os0_3" type="hidden" value="">
+
+<input id="itemName4" name="item_name_4" type="hidden" value="">
+<input id="itemAmount4" name="amount_4" type="hidden" value="">
+<input id="itemQuantity4" name="quantity_4" type="hidden" value="">
+<input id="on4" name="on0_4" type="hidden" value="">
+<input id="os4" name="os0_4" type="hidden" value="">
+
+<input id="itemName5" name="item_name_5" type="hidden" value="">
+<input id="itemAmount5" name="amount_5" type="hidden" value="">
+<input id="itemQuantity5" name="quantity_5" type="hidden" value="">
+<input id="on5" name="on0_5" type="hidden" value="">
+<input id="os5" name="os0_5" type="hidden" value="">
+
+<br>
+
+<table bgcolor="#b3d0b2" border="0" cellpadding="0" cellspacing="0" style="font-size:10pt;font-family:Arial;" width="700">
+<TBODY><tr>
+<td align="center">
+
+<table bgcolor="#ffffff" border="0" cellpadding="0" cellspacing="0" style="font-size:10pt;font-family:Arial;" width="680">
+
+<TBODY><tr height="30">
+<td align="left" colspan="7" style="font-size:14pt;background:#b3d0b2;" width="680"><b>&nbsp;Pasta Dinner Tickets</b></td>
+</tr>
+
+<tr height="20"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#576956;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Individual tickets - $5</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Number of tickets:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<select name="ticket1" onchange="updateTickets();">
+<option value=""> </option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+</select>
+</td>
+<td width="100" style="font-size:9pt">&nbsp; x $5</td>
+<td width="120">&nbsp;</td>
+<td align="right" id="ticket1Subtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr style="font-size:8pt">
+<td align="right" colspan="2" id="first1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td align="right" colspan="2" id="last1Error" style="font-size:8pt; font-weight:bold; color:#ff0000;" width="180"></td>
+<td width="100">&nbsp;</td>
+<td width="120">&nbsp;</td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#576956;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Family tickets (up to 6 members) - $20</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Number of tickets:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<select name="ticket6" onchange="updateTickets();">
+<option value=""> </option>
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+</select>
+</td>
+<td width="100" style="font-size:9pt">&nbsp; x $20</td>
+<td align="left" width="120">&nbsp;</td>
+<td align="right" id="ticket6Subtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr height="20">
+<td colspan="2" align="right" width="180">&nbsp;</td>
+<td colspan="4" align="left" width="400" id="ticketError" style="font-size:8pt; font-weight:bold; color:#ff0000;"></td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#576956;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Raffle tickets - $3 each, or 5 for $10</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Number of tickets:&nbsp;</b></td>
+<td colspan="2" align="left" width="180">
+&nbsp;&nbsp;
+<input name="ticketR" onchange="updateTickets();" maxlength="3" size="3" type="text">
+</td>
+<td width="100" style="font-size:9pt">&nbsp; x $3, 5 for $10</td>
+<td align="left" width="120">&nbsp;</td>
+<td align="right" id="ticketRSubtotal" style="font-weight:bold;" width="100">&nbsp;</td>
+</tr>
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+
+<tr height="20">
+<td colspan="2" align="right" width="180">&nbsp;</td>
+<td colspan="4" align="left" width="400" id="ticketRError" style="font-size:8pt; font-weight:bold; color:#ff0000;"></td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr><td align="left" colspan="7" style="font-size:12pt;color:#576956;background:#eeeeee;" width="680"><i><b>&nbsp;&nbsp;Name</b></i></td></tr>
+
+<tr height="5"><td colspan="7" width="680"></td></tr>
+<tr><td align="left" colspan="7" width="680">&nbsp;&nbsp;Your tickets will be available for pickup at the door, under this name</td></tr>
+<tr height="5"><td colspan="7" width="680"></td></tr>
+
+<tr style="font-size:11pt">
+<td colspan="2" align="right" width="180"><b>Name:&nbsp;</b></td>
+<td colspan="3" align="left" width="280">
+&nbsp;&nbsp;
+<input align="right" maxlength="50" name="name" size="30" type="text">
+</td>
+<td align="left" width="120">&nbsp;</td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+<tr height="20">
+<td colspan="2" align="right" width="180">&nbsp;</td>
+<td colspan="4" align="left" width="400" id="nameError" style="font-size:8pt; font-weight:bold; color:#ff0000;"></td>
+<td align="right" width="100">&nbsp;</td>
+</tr>
+
+
+<tr height="10"><td colspan="7" width="680"></td></tr>
+<tr height="10" style="background:#b3d0b2;"><td colspan="7" width="680"></td></tr>
+
+<tr height="30" style="font-size:14pt;background:#b3d0b2;">
+<td align="left" colspan="4" rowspan="2" width="360">
+<img align="left" alt="Paypal" border="0" src="https://www.paypal.com/en_US/i/bnr/horizontal_solution_PPeCheck.gif" valign="center">
+</td>
+<td align="center" colspan="2" width="220"><b>&nbsp;Total</b></td>
+<td align="right" id="grandTotal" style="font-weight:bold;" width="100">$0.00</td>
+</tr>
+
+<tr height="50" style="font-size:11pt;background:#b3d0b2;">
+<td align="right" colspan="3" style="font-size:9pt;font-weight:bold;" width="320">
+<img align="center" alt="PayPal" border="0" onClick="validate();" src="https://www.paypalobjects.com/en_US/i/btn/btn_paynow_LG.gif">
+<img alt="" border="0" height="1" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1">
+<br>
+<span align="left" style="font-size:7pt">Opens in new window&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+</td>
+</tr>
+
+<tr height="10" style="background:#b3d0b2;"><td colspan="7" width="680"></td></tr>
+
+</TBODY></table>
+
+</td>
+</tr>
+</TBODY></table>
+
+     
+</form>
+</body></html>
+
+
+     ]]>
+  </Content> 
+</Module>
+
